@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="HW03_SpanMemoryStackalloc/HW03_SpanMemoryStackalloc.csproj" />
+  <Project Path="HW03_xUnitTest/HW03_xUnitTest.csproj" Id="1fc8177a-e40d-4c69-8491-c160141d3552" />
+</Solution>
