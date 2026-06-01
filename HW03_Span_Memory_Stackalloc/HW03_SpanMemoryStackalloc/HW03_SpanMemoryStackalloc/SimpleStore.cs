@@ -18,11 +18,16 @@ namespace HW03_SpanMemoryStackalloc
 
         public void Set(string key, byte[] value)
         {
+            CheckParamKey(key);
+            CheckParamValue(value);
+
             _dictionary[key] = value;
         }
 
         public byte[]? Get(string key)
         {
+            CheckParamKey(key);
+
             if (!_dictionary.Keys.Contains(key))
                 return null;
 
@@ -31,8 +36,21 @@ namespace HW03_SpanMemoryStackalloc
 
         public void Delete(string key)
         {
-            if(_dictionary.Keys.Contains(key))
+            CheckParamKey(key);
+
+            if (_dictionary.Keys.Contains(key))
                 _dictionary.Remove(key);
+        }
+
+        private void CheckParamKey(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException("Param 'key' is null");
+        }
+        private void CheckParamValue(byte[] value)
+        {
+            if (value == null)
+                throw new ArgumentNullException("Param 'value' is null");
         }
     }
 }
