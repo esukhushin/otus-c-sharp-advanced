@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../../HW03_Span_Memory_Stackalloc/HW03_SpanMemoryStackalloc/HW03_SpanMemoryStackalloc/HW03_SpanMemoryStackalloc.csproj" />
+  <Project Path="HW06_IDisposableAsync/HW06_IDisposableAsync.csproj" />
+  <Project Path="HW06_IDisposableAsync_Test/HW06_IDisposableAsync_Test.csproj" Id="02f558d9-d8a0-49ff-b7e3-7ae20953c311" />
+</Solution>
