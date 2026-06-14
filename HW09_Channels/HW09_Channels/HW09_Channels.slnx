@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="HW09_Channels/HW09_Channels.csproj" />
+  <Project Path="HW09_Channels_xUnitTest/HW09_Channels_xUnitTest.csproj" Id="eb4d910a-bbf0-4485-a26b-10a4925edba7" />
+</Solution>
