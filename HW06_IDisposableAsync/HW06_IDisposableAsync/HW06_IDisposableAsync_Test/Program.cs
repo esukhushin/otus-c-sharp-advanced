@@ -26,8 +26,6 @@ internal class Program
 
         Task.WaitAll(tstTasks);
 
-        await Task.Run(() => SendTest($@""));
-
         Console.WriteLine("Test End");
 
         Console.ReadKey();

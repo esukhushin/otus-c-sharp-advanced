@@ -7,8 +7,28 @@ internal class Program
 
     private static async Task Main(string[] args)
     {
-        await new TcpServer().StartAsync(_ip, _port);
+        using var cts = new CancellationTokenSource();
 
-        Console.ReadKey();
+        Console.CancelKeyPress += (sender, e) =>
+        {
+            Console.WriteLine("Завешение сервера");
+            e.Cancel = true;
+            cts.Cancel();
+        };
+
+        using var tcpServer = new TcpServer();
+
+        try
+        {
+            await tcpServer.StartAsync(_ip, _port, cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Сервер завершен");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
     }
 }

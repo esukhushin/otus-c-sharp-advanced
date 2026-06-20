@@ -17,11 +17,6 @@ namespace HW06_IDisposableAsync
         {
 
         }
-        ~TcpServer()
-        {
-            Dispose(false);
-        }
-
         public void Dispose()
         {
             Dispose(true);
@@ -39,34 +34,24 @@ namespace HW06_IDisposableAsync
             _disposed = true;
         }
 
-        public async Task StartAsync(string ip, int port)
+        public async Task StartAsync(string ip, int port, CancellationToken token)
         {
+            InitTcpSocket(ip, port);
+
             try
             {
-                InitTcpSocket(ip, port);
-
-                var ct = new CancellationTokenSource();
-
-                while (true)
+                while (!token.IsCancellationRequested)
                 {
-                    var clientSocket = await _tcpSocket.AcceptAsync();
+                    var clientSocket = await _tcpSocket.AcceptAsync(token);
 
-                    var clientTask = await Task.Factory.StartNew(() => ProcessClientAsync(clientSocket, ct),
-                        TaskCreationOptions.AttachedToParent);
-
-                    if (ct.IsCancellationRequested)
-                        return;
+                    await ProcessClientAsync(clientSocket, token);
                 }
             }
-            catch (Exception ex)
+            catch (OperationCanceledException)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($@"StartAsuncCanceled");
+                throw;
             }
-            finally
-            {
-                this.Dispose(true);
-            }
-
         }
 
         private void InitTcpSocket(string ip, int port)
@@ -76,43 +61,38 @@ namespace HW06_IDisposableAsync
         }
 
         private IPAddress GetIP(string ip)
-        {
-            var regex = new Regex(@"\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}");
-            if (!regex.IsMatch(ip))
+        {   
+            if(!IPAddress.TryParse(ip, out var address))
                 throw new InvalidDataException("ip address is incorrect");
 
-            return IPAddress.Parse(ip);
+            return address;
         }
 
-        private async Task ProcessClientAsync(Socket socket, CancellationTokenSource cancellationToken)
+        private async Task ProcessClientAsync(Socket socket, CancellationToken token)
         {
             byte[]? arrayByte = null;
             try
             {
                 arrayByte = _pool.Rent(1024);
 
-                var count = await socket.ReceiveAsync(arrayByte, SocketFlags.None);
-                if (count == 0)
+                while (!token.IsCancellationRequested)
                 {
-                    cancellationToken.Cancel();
-                    return;
+                    var count = await socket.ReceiveAsync(arrayByte, SocketFlags.None);
+                    if (count == 0)
+                        break;
+                    
+                    var result = CommandParser.Parse(arrayByte.AsSpan(0, count));
+
+                    Console.WriteLine($@"ServerThreadId - '{Thread.CurrentThread.ManagedThreadId}' Command - '{Encoding.UTF8.GetString(result.Command)}' Key - '{Encoding.UTF8.GetString(result.Key)}' Value - '{Encoding.UTF8.GetString(result.Value)}'");
                 }
-
-                var result = CommandParser.Parse(arrayByte);
-
-                Console.WriteLine($@"ServerThreadId - '{Thread.CurrentThread.ManagedThreadId}' Command - '{Encoding.UTF8.GetString(result.Command)}' Key - '{Encoding.UTF8.GetString(result.Key)}' Value - '{Encoding.UTF8.GetString(result.Value)}'");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($@"Error - {ex.Message}");
             }
             finally
             {
                 if (arrayByte != null)
                     _pool.Return(arrayByte, true);
 
-                socket?.Shutdown(SocketShutdown.Both);
-                socket?.Close();
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
             }
         }
     }
