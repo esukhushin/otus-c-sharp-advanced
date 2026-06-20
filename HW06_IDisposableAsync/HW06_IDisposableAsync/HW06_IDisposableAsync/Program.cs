@@ -1,4 +1,5 @@
 ﻿using HW06_IDisposableAsync;
+using System.Text;
 
 internal class Program
 {
@@ -7,6 +8,9 @@ internal class Program
 
     private static async Task Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
         using var cts = new CancellationTokenSource();
 
         Console.CancelKeyPress += (sender, e) =>
