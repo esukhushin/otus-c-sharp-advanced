@@ -11,7 +11,7 @@ internal class Program
 
         Console.CancelKeyPress += (sender, e) =>
         {
-            Console.WriteLine("Завешение сервера");
+            Console.WriteLine("Завершение сервера");
             e.Cancel = true;
             cts.Cancel();
         };

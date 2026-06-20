@@ -49,7 +49,7 @@ namespace HW06_IDisposableAsync
             }
             catch (OperationCanceledException)
             {
-                Console.WriteLine($@"StartAsuncCanceled");
+                Console.WriteLine($@"StartAsyncCanceled");
                 throw;
             }
         }
