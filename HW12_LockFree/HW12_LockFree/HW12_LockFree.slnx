@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../../HW03_Span_Memory_Stackalloc/HW03_SpanMemoryStackalloc/HW03_SpanMemoryStackalloc/HW03_SpanMemoryStackalloc.csproj" />
+  <Project Path="../../HW09_Channels/HW09_Channels/HW09_Channels/HW09_Channels.csproj" />
+  <Project Path="HW12_LockFree/HW12_LockFree.csproj" />
+  <Project Path="HW12_LockFree_Test/HW12_LockFree_Test.csproj" Id="ab147e04-7869-44c8-82dd-750b187bb5d8" />
+</Solution>

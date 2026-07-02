@@ -15,15 +15,6 @@ namespace HW09_Channels
         private long _getCount = 0;
         private long _deleteCount = 0;
 
-        public SimpleStore()
-        {
-
-        }
-        ~SimpleStore()
-        {
-            Dispose(false);
-        }
-
         public void Set(string key, byte[] value)
         {
             try
