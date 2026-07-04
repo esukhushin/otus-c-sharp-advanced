@@ -15,7 +15,11 @@ namespace HW12_LockFree
         private readonly Socket _tcpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private readonly ArrayPool<byte> _pool = ArrayPool<byte>.Shared;
         private readonly SimpleStore09.SimpleStore _simpleStore;
-        
+
+        private const string OK = "OK\r\n";
+        private const string ERROR = "-ERR Unknown command\r\n";
+        private const string NIL = "(nil)\r\n";
+
         public TcpServer(SimpleStore09.SimpleStore simpleStore)
         {
             _simpleStore = simpleStore;
@@ -93,19 +97,21 @@ namespace HW12_LockFree
                     {
                         case "get":
                             var value = _simpleStore.Get(Encoding.UTF8.GetString(result.Key));
-                            var answerStr = value != null ? Encoding.UTF8.GetString(value) : "(nil)";
-                            await SendAnswerToClient(socket, $@"{answerStr}{Environment.NewLine}", token);
+                            if (value != null)
+                                await SendAnswerToClient(socket, $@"{Encoding.UTF8.GetString(value)}{Environment.NewLine}", token);
+                            else
+                                await SendAnswerToClient(socket, NIL, token);
                             break;
                         case "set":
                             _simpleStore.Set(Encoding.UTF8.GetString(result.Key), result.Value.ToArray());
-                            await SendAnswerToClient(socket, $@"OK{Environment.NewLine}", token);
+                            await SendAnswerToClient(socket, OK, token);
                             break;
                         case "delete":
                             _simpleStore.Delete(Encoding.UTF8.GetString(result.Key));
-                            await SendAnswerToClient(socket, $@"OK{Environment.NewLine}", token);
+                            await SendAnswerToClient(socket, OK, token);
                             break;
                         default:
-                            await SendAnswerToClient(socket, $@"-ERR Unknown command{Environment.NewLine}", token);
+                            await SendAnswerToClient(socket, ERROR, token);
                             break;
                     }
                 }
