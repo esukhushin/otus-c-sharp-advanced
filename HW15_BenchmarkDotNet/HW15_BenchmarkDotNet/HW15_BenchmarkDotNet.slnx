@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../../HW12_LockFree/HW12_LockFree/HW12_LockFree/HW12_LockFree.csproj" />
+  <Project Path="HW15_BenchmarkDotNet/HW15_BenchmarkDotNet.csproj" />
+</Solution>

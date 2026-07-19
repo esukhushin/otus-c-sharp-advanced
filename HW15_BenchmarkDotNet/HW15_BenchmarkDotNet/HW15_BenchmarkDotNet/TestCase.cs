@@ -1,0 +1,42 @@
+﻿using NBomber.CSharp;
+using System.Text;
+
+namespace HW15_BenchmarkDotNet
+{
+    public class TestCase
+    {
+        private const string OK = "OK\r\n";
+        public async Task StartTest()
+        {
+            var scenario = Scenario.Create("tcp_client_test_scenario", async context =>
+            {
+                return await Step.Run("tcp_client_test", context, async () =>
+                {
+                    try
+                    {
+                        var _tcpServerClient = new TcpServerClient();
+
+                        var key = $@"user:{Guid.NewGuid()}";
+                        var value = Encoding.UTF8.GetBytes($@"Value_{Guid.NewGuid()}");
+
+                        var response = await _tcpServerClient.SetAsync(key, value);
+
+                        if (Encoding.UTF8.GetString(response).ToUpper() == OK)
+                            return Response.Ok();
+
+                        return Response.Fail();
+                    }
+                    catch (Exception)
+                    {
+                        return Response.Fail();
+                    }
+                });
+            })
+                .WithWarmUpDuration(TimeSpan.FromSeconds(10))
+                .WithLoadSimulations(Simulation.Inject(rate: 100, interval: TimeSpan.FromSeconds(1), during: TimeSpan.FromSeconds(30)))
+                .WithRestartIterationOnFail(false);
+
+            NBomberRunner.RegisterScenarios(scenario).Run();
+        }
+    }
+}
