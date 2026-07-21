@@ -1,4 +1,5 @@
-﻿using NBomber.CSharp;
+﻿using NBomber.Contracts.Stats;
+using NBomber.CSharp;
 using System.Text;
 
 namespace HW15_BenchmarkDotNet
@@ -36,7 +37,11 @@ namespace HW15_BenchmarkDotNet
                 .WithLoadSimulations(Simulation.Inject(rate: 100, interval: TimeSpan.FromSeconds(1), during: TimeSpan.FromSeconds(30)))
                 .WithRestartIterationOnFail(false);
 
-            NBomberRunner.RegisterScenarios(scenario).Run();
+            NBomberRunner.RegisterScenarios(scenario)
+                .WithReportFormats(ReportFormat.Txt)
+                .WithReportFolder(Path.Combine(AppContext.BaseDirectory, "Reports"))
+                .WithReportFileName($@"Report_{Guid.NewGuid()}")
+                .Run();
         }
     }
 }
