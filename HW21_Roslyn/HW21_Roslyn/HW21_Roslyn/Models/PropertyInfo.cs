@@ -7,10 +7,10 @@ namespace HW21_Roslyn.Models
 {
     public class PropertyInfo
     {
-        public string Name { get; }
-        public SpecialType SpecialType { get; }
-        public string Type { get; }
-        public int? Size { get; }
+        public string Name { get; set; }
+        public SpecialType SpecialType { get; set; }
+        public string Type { get; set; }
+        public int? Size { get; set; }
         
         public PropertyInfo(string name, SpecialType specialType,  string type, int? size)
         {
