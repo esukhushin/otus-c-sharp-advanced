@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace HW21_Roslyn_TcpServer
@@ -10,10 +11,10 @@ namespace HW21_Roslyn_TcpServer
     {
         private bool _disposed = false;
         private readonly Socket _tcpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        private readonly ArrayPool<byte> _pool = ArrayPool<byte>.Shared;
+        private readonly MemoryPool<byte> _pool = MemoryPool<byte>.Shared;
         private readonly SimpleStore _simpleStore;
 
-        private byte[] OK = Encoding.UTF8.GetBytes("OK\r\n");
+        private byte[] OK =  Encoding.UTF8.GetBytes("OK\r\n");
         private byte[] ERROR = Encoding.UTF8.GetBytes("-ERR Unknown command\r\n");
         private byte[] NIL = Encoding.UTF8.GetBytes("(nil)\r\n");
 
@@ -74,18 +75,18 @@ namespace HW21_Roslyn_TcpServer
 
         private async Task ProcessClientAsync(Socket socket, CancellationToken token)
         {
-            byte[]? arrayByte = null;
+            IMemoryOwner<byte>? memoryOwner = null;
             try
             {
-                arrayByte = _pool.Rent(1024);
+                memoryOwner = _pool.Rent(1024);
 
                 while (!token.IsCancellationRequested)
                 {
-                    var count = await socket.ReceiveAsync(arrayByte, SocketFlags.None);
+                    var count = await socket.ReceiveAsync(memoryOwner.Memory, SocketFlags.None);
                     if (count == 0)
                         break;
 
-                    var result = CommandParser.Parse(arrayByte.AsSpan(0, count));
+                    var result = CommandParser.Parse(memoryOwner.Memory.Slice(0, count).Span);
                     if (result.Command.Length == 0)
                         break;
 
@@ -95,7 +96,12 @@ namespace HW21_Roslyn_TcpServer
                         case "get":
                             var value = _simpleStore.Get(Encoding.UTF8.GetString(result.Key));
                             if (value != null)
-                                await SendAnswerToClient(socket, UserProfile.ConvertToByteArray(value), token);
+                            {
+                                memoryOwner.Memory.Span.Clear();
+                                using var stream = GetMemoryStream(memoryOwner);
+                                value.SerializeToBinary(stream);
+                                await SendAnswerToClient(socket, memoryOwner.Memory, token, (int)stream.Position);
+                            }
                             else
                                 await SendAnswerToClient(socket, NIL, token);
                             break;
@@ -115,17 +121,27 @@ namespace HW21_Roslyn_TcpServer
             }
             finally
             {
-                if (arrayByte != null)
-                    _pool.Return(arrayByte, true);
+                if (memoryOwner != null)
+                    memoryOwner.Dispose();
 
                 socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
             }
         }
 
-        private async Task SendAnswerToClient(Socket socket, byte[] data, CancellationToken token)
+        private async Task SendAnswerToClient(Socket socket, Memory<byte> data, CancellationToken token, int? position = null)
         {
-            await socket.SendAsync(data, SocketFlags.None, token);
+            await socket.SendAsync(position == null ? data : data.Slice(0, position.Value), SocketFlags.None, token);
+        }
+
+        public MemoryStream GetMemoryStream(IMemoryOwner<byte> memoryOwner)
+        {
+            var memory = memoryOwner.Memory;
+
+            if (MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> segment))
+                return new MemoryStream(segment.Array, segment.Offset, segment.Count);
+            
+            return new MemoryStream(memory.ToArray());
         }
     }
 }

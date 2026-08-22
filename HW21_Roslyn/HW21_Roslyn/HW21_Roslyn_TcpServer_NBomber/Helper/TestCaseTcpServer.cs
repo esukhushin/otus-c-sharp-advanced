@@ -3,11 +3,11 @@ using NBomber.CSharp;
 using System.Text;
 using HW21_Roslyn_TcpServer.Helper;
 using NBomber.Contracts;
-using HW21_Roslyn_TcpServer_BenchmarkDotNet.Interface;
+using HW21_Roslyn_TcpServer_NBomber.Interface;
 
-namespace HW21_Roslyn_TcpServer_BenchmarkDotNet.Helper
+namespace HW21_Roslyn_TcpServer_NBomber.Helper
 {
-    public class TestCase
+    public class TestCaseTcpServer
     {
         private readonly Random _rnd = new Random(10);
         private const string OK = "OK\r\n";

@@ -24,13 +24,16 @@ internal class Program
                 CreatedAt = DateTime.Now
             };
 
+            using var stream = new MemoryStream();
+            value.SerializeToBinary(stream);
+
             var data = new List<byte[]>()
             {
                 set,
                 whiteSpace,
                 Encoding.UTF8.GetBytes(key),
                 whiteSpace,
-                UserProfile.ConvertToByteArray(value)
+                stream.ToArray()
             }
             .SelectMany(s => s)
             .ToArray();

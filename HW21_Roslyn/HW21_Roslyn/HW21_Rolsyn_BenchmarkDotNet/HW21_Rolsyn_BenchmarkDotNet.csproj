@@ -9,11 +9,10 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
-    <PackageReference Include="NBomber" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HW21_Roslyn_TcpServer\HW21_Roslyn_TcpServer.csproj" />
+    <ProjectReference Include="..\HW21_Roslyn\HW21_Roslyn.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

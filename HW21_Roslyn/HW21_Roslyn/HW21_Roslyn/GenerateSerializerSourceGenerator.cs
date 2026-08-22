@@ -104,8 +104,7 @@ namespace HW21_Roslyn
 
             GenerateSerialize(classInfo, code);
             GenerateDeserialize(classInfo, code);
-            GenerateConvertToByteArray(classInfo, code);
-
+            
             code.AppendLine("}");
 
             code.AppendLine("}");
@@ -191,19 +190,6 @@ namespace HW21_Roslyn
             }
 
             code.AppendLine("return result;");
-
-            code.AppendLine("}");
-        }
-        private void GenerateConvertToByteArray(ClassInfo classInfo, StringBuilder code)
-        {
-            code.AppendLine($@"public static byte[] ConvertToByteArray({classInfo.ClassName}? value)");
-            code.AppendLine("{");
-
-            code.AppendLine("using (var ms = new MemoryStream())");
-            code.AppendLine("{");
-            code.AppendLine("value?.SerializeToBinary(ms);");
-            code.AppendLine("return ms.ToArray();");
-            code.AppendLine("}");
 
             code.AppendLine("}");
         }

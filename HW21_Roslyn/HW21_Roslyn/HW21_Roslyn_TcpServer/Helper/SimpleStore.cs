@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
 using System.Text;
@@ -10,11 +11,22 @@ namespace HW21_Roslyn_TcpServer.Helper
     {
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
         private readonly Dictionary<string, byte[]> _dictionary = new Dictionary<string, byte[]>();
+        private readonly ArrayPool<byte> _pool = ArrayPool<byte>.Shared;
+
+        private MemoryStream _stream;
 
         private bool _disposed = false;
         private long _setCount = 0;
         private long _getCount = 0;
         private long _deleteCount = 0;
+        private byte[]? _arrayByte = null;
+
+
+        public SimpleStore()
+        {
+            _arrayByte = _pool.Rent(1024);
+            _stream = new MemoryStream(_arrayByte, true);
+        }
 
         public void Set(string key, UserProfile? profile)
         {
@@ -24,8 +36,10 @@ namespace HW21_Roslyn_TcpServer.Helper
                 CheckParamValue(profile);
 
                 _lock.EnterWriteLock();
-
-                _dictionary[key] = UserProfile.ConvertToByteArray(profile);
+                
+                _stream.Position = 0;
+                profile.SerializeToBinary(_stream);
+                _dictionary[key] = _arrayByte.AsSpan(0, (int)_stream.Position).ToArray();
 
                 Interlocked.Increment(ref _setCount);
             }
@@ -116,7 +130,11 @@ namespace HW21_Roslyn_TcpServer.Helper
             if (_disposed) return;
             if (disposing)
             {
-                _lock.Dispose();
+                if (_arrayByte != null)
+                    _pool.Return(_arrayByte, true);
+
+                _stream?.Dispose();
+                _lock?.Dispose();
             }
 
             _disposed = true;

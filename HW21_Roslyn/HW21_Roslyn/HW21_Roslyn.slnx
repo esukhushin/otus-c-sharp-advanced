@@ -1,7 +1,8 @@
 <Solution>
   <Project Path="../../HW18_SIMD/HW18_SIMD/HW18_SIMD/HW18_SIMD.csproj" />
+  <Project Path="HW21_Rolsyn_BenchmarkDotNet/HW21_Rolsyn_BenchmarkDotNet.csproj" Id="65a45933-c2dd-435c-945a-a6117cffc8bd" />
   <Project Path="HW21_Roslyn/HW21_Roslyn.csproj" />
   <Project Path="HW21_Roslyn_SerializerTest/HW21_Roslyn_SerializerTest.csproj" Id="87c727d4-b60c-4c1c-ac49-88b858279301" />
   <Project Path="HW21_Roslyn_TcpServer/HW21_Roslyn_TcpServer.csproj" Id="9e71bf19-14c7-4666-a778-b6c89b935f73" />
-  <Project Path="HW21_Roslyn_TcpServer_BenchmarkDotNet/HW21_Roslyn_TcpServer_BenchmarkDotNet.csproj" Id="8a6470eb-5154-43e7-8126-7ad2fbe4dec9" />
+  <Project Path="HW21_Roslyn_TcpServer_NBomber/HW21_Roslyn_TcpServer_NBomber.csproj" Id="45d35700-246a-4449-a9e7-6583a3e936b5" />
 </Solution>

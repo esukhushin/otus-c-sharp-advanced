@@ -8,8 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
-    <PackageReference Include="NBomber" Version="6.5.0" />
+    <PackageReference Include="NBomber" Version="6.6.0" />
   </ItemGroup>
 
   <ItemGroup>
