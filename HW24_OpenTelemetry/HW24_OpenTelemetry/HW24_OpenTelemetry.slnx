@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../../HW21_Roslyn/HW21_Roslyn/HW21_Roslyn/HW21_Roslyn.csproj" />
+  <Project Path="HW24_OpenTelemetry/HW24_OpenTelemetry.csproj" />
+  <Project Path="HW24_OpenTelemetry_NBomber/HW24_OpenTelemetry_NBomber.csproj" />
+</Solution>
