@@ -1,0 +1,50 @@
+Добрый день!
+
+Для ДЗ я использовал пример с 17й лекции "Продвинутая отладка: анализ дампов памяти с WinDbg" dump_example.ConsoleApp1.
+
+Этапы анализа:
+
+1. Получение списка приложений:
+PS C:\Users\suhus> dotnet-dump ps
+27756  ConsoleApp1 eApp1\bin\Debug\net8.0\ConsoleApp1.exe pp1\bin\Debug\net8.0\ConsoleApp1.exe"
+....
+
+2. Формирование дампа:
+PS C:\Users\suhus> dotnet-dump collect -p 27756
+Writing full to C:\Users\suhus\dump_20260908_220744.dmp
+Complete
+
+3. Проверяем список потоков в приложении, интересуют ID - 12,13:
+0:000> !threads
+ThreadCount:      12
+UnstartedThread:  0
+BackgroundThread: 5
+PendingThread:    0
+DeadThread:       4
+Hosted Runtime:   no
+                                                                                                            Lock  
+ DBG   ID     OSID ThreadOBJ           State GC Mode     GC Alloc Context                  Domain           Count Apt Exception
+...
+  14   12     48d8 0000015680536250  202b020 Preemptive  00000156C0113038:00000156C0115010 00000156bb689820 -00001 MTA 
+  15   13     2578 000001568052F3C0  202b020 Preemptive  0000000000000000:0000000000000000 00000156bb689820 -00001 MTA 
+ 
+4. Проверяем наличие дедлоков(MonitorHeld = 3 - ожидающие потоки):
+0:000> !syncblk
+Index         SyncBlock MonitorHeld Recursion Owning Thread Info          SyncBlock Owner
+    3 0000015680516EF8            3         1 0000015680536250 48d8  14   00000156c0113008 System.Object
+    4 0000015680516F50            3         1 000001568052F3C0 2578  15   00000156c0113020 System.Object
+	
+5. Проверяем стек потоков, в стеке описаны методы(ConsoleApp1.Process.Method1(), ConsoleApp1.Process.Method2()), 
+    а так же номера строк вложенных локов приводящих к взаимоблокировке:
+0:000> !clrstack -all
+...
+OS Thread Id: 0x48d8
+        Child SP               IP Call Site
+00000033D423F948 00007ffc7c540ed4 [HelperMethodFrame_1OBJ: 00000033d423f948] System.Threading.Monitor.ReliableEnter(System.Object, Boolean ByRef)
+00000033D423FA90 00007ffb71fa3669 ConsoleApp1.Process.Method1() [C:\Users\suhus\Downloads\dump_example_450003_f2e184-450003-bed923\dump_example\ConsoleApp1\Process.cs @ 16]
+00000033D423FD28 00007ffbd1b1f123 [DebuggerU2MCatchHandlerFrame: 00000033d423fd28] 
+OS Thread Id: 0x2578
+        Child SP               IP Call Site
+00000033D43BFA18 00007ffc7c540ed4 [HelperMethodFrame_1OBJ: 00000033d43bfa18] System.Threading.Monitor.ReliableEnter(System.Object, Boolean ByRef)
+00000033D43BFB60 00007ffb71fa3879 ConsoleApp1.Process.Method2() [C:\Users\suhus\Downloads\dump_example_450003_f2e184-450003-bed923\dump_example\ConsoleApp1\Process.cs @ 31]
+00000033D43BFDF8 00007ffbd1b1f123 [DebuggerU2MCatchHandlerFrame: 00000033d43bfdf8] 
