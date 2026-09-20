@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="InMemoryKeyValueCache.Common.BenchmarkDotNet/InMemoryKeyValueCache.Common.BenchmarkDotNet.csproj" />
+  <Project Path="InMemoryKeyValueCache.Common.xUnit/InMemoryKeyValueCache.Common.xUnit.csproj" />
+  <Project Path="InMemoryKeyValueCache.Common/InMemoryKeyValueCache.Common.csproj" />
+  <Project Path="InMemoryKeyValueCache.SourceGenerator/InMemoryKeyValueCache.SourceGenerator.csproj" />
+  <Project Path="InMemoryKeyValueCache.TcpServer.NBomber/InMemoryKeyValueCache.TcpServer.NBomber.csproj" />
+  <Project Path="InMemoryKeyValueCache.TcpServer/InMemoryKeyValueCache.TcpServer.csproj" />
+</Solution>

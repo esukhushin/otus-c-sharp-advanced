@@ -1,0 +1,70 @@
+﻿using InMemoryKeyValueCache.Common.Helpers;
+using InMemoryKeyValueCache.Common.Models;
+
+namespace InMemoryKeyValueCache.Common.Parsers
+{
+    public static class CommandParser
+    {
+        public static DataStruct<byte> Parse(ReadOnlySpan<byte> roSpan)
+        {
+            ReadOnlySpan<byte> command = null;
+            ReadOnlySpan<byte> key = null;
+            ReadOnlySpan<byte> value = null;
+
+            for (int i = 0; i < 3; i++)
+            {
+                var index = SkipWhiteSpace(roSpan, 0);
+                if (index.isEnd)
+                    break;
+
+                roSpan = roSpan.Slice(index.idx);
+
+                index.idx = i < 2 ? roSpan.IndexOf(CommonBytesData.SplitValue) : -1;
+
+                var part = index.idx != -1 ? roSpan.Slice(0, index.idx) : roSpan;
+                switch (i)
+                {
+                    case 0:
+                        command = part;
+                        break;
+                    case 1:
+                        key = part;
+                        break;
+                    case 2:
+                        value = part;
+                        continue;
+                }
+
+                index = SkipWhiteSpace(roSpan, index.idx + 1);
+                if (index.isEnd)
+                    break;
+
+                roSpan = roSpan.Slice(index.idx);
+            }
+
+            return key.IsEmpty ?
+                new DataStruct<byte>() :
+                new DataStruct<byte>()
+                {
+                    Command = command,
+                    Key = key,
+                    Value = value
+                };
+        }
+
+        private static (int idx, bool isEnd) SkipWhiteSpace(ReadOnlySpan<byte> roSpan, int idx)
+        {
+            while (true)
+            {
+                if (idx >= roSpan.Length)
+                    return (idx, true);
+
+                if (roSpan[idx] == CommonBytesData.SplitValue)
+                    idx++;
+                else
+                    break;
+            }
+            return (idx, false);
+        }
+    }
+}
